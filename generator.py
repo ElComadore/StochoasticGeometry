@@ -1,7 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import multiprocessing as mp
-import time
 
 
 def generate_wiener_diff(delta, n):
@@ -22,18 +20,19 @@ def jiggle(x, mu, sigma, delta):
     :return: the new position
     """
 
-    return x + mu*delta + sigma*np.random.normal(0, np.sqrt(delta))
+    return x + mu * delta + sigma * np.random.normal(0, np.sqrt(delta))
 
 
 def milstein(x, mu, sigma, deriv, delta, omega):
-    return x + mu*delta + sigma*omega + deriv*(omega*omega - delta)
+    return x + mu * delta + sigma * omega + deriv * (omega * omega - delta)
 
 
 def euler(x, mu, sigma, delta, omega):
-    return x + mu*delta + sigma*omega
+    return x + mu * delta + sigma * omega
 
 
-def stochastic_processes(surf, h, alpha, beta, x0, y0, wiener, x_mu, x_sigma, x_deriv, y_mu, y_sigma, y_deriv, delta, n):
+def stochastic_processes(surf, h, alpha, beta, x0, y0, wiener, x_mu, x_sigma, x_deriv, y_mu, y_sigma, y_deriv, delta,
+                         n):
     x = list()
     y = list()
 
@@ -56,39 +55,47 @@ def stochastic_processes(surf, h, alpha, beta, x0, y0, wiener, x_mu, x_sigma, x_
 
 
 def x_drift_add(surf, x, y, h, alpha, beta):
-    return -0.5*beta*beta*((surf(x, y + h) - 2*surf(x, y) + surf(x, y - h))/(h*h))*((surf(x + h/2, y) - surf(x - h/2, y))/h) \
-           + alpha*(surf(x, y + h/2) - surf(x, y - h/2))/h
+    return -0.5 * beta * beta * ((surf(x, y + h) - 2 * surf(x, y) + surf(x, y - h)) / (h * h)) * (
+                (surf(x + h / 2, y) - surf(x - h / 2, y)) / h) \
+           + alpha * (surf(x, y + h / 2) - surf(x, y - h / 2)) / h
 
 
 def x_drift_multi(surf, x, y, h, alpha, beta):
-    return -0.5*beta*beta*((surf(x, y + h) - 2*surf(x, y) + surf(x, y - h))/(h*h))*((surf(x + h/2, y) - surf(x - h/2, y))/h) \
-           - alpha*(((surf(x-h, y-h) + surf(x + h, y + h) - surf(x + h, y - h) - surf(x - h, y + h))*beta*beta*(surf(x, y + h/2) - surf(x, y - h/2)))/(4*h*h*h))
+    return -0.5 * beta * beta * ((surf(x, y + h) - 2 * surf(x, y) + surf(x, y - h)) / (h * h)) * (
+                (surf(x + h / 2, y) - surf(x - h / 2, y)) / h) \
+           - alpha * (((surf(x - h, y - h) + surf(x + h, y + h) - surf(x + h, y - h) - surf(x - h,
+                                                                                            y + h)) * beta * beta * (
+                                   surf(x, y + h / 2) - surf(x, y - h / 2))) / (4 * h * h * h))
 
 
 def x_diff(surf, x, y, h, beta):
-    return beta*(surf(x, y + h/2) - surf(x, y - h/2))/h
+    return beta * (surf(x, y + h / 2) - surf(x, y - h / 2)) / h
 
 
 def x_diff_deriv(x, y):
-    return 0.5*x
+    return 0.5 * x
 
 
 def y_drift_add(surf, x, y, h, alpha, beta):
-    return -0.5*beta*beta*((surf(x + h, y) - 2*surf(x, y) + surf(x - h, y))/(h*h))*((surf(x, y + h/2) - surf(x, y - h/2))/h) \
-           - alpha*(surf(x + h/2, y) - surf(x - h/2, y))/h
+    return -0.5 * beta * beta * ((surf(x + h, y) - 2 * surf(x, y) + surf(x - h, y)) / (h * h)) * (
+                (surf(x, y + h / 2) - surf(x, y - h / 2)) / h) \
+           - alpha * (surf(x + h / 2, y) - surf(x - h / 2, y)) / h
 
 
 def y_drift_multi(surf, x, y, h, alpha, beta):
-    return -0.5*beta*beta*((surf(x + h, y) - 2*surf(x, y) + surf(x - h, y))/(h*h))*((surf(x, y + h/2) - surf(x, y - h/2))/h) \
-           + (alpha - 1)*(surf(x-h, y-h) + surf(x + h, y + h) - surf(x + h, y - h) - surf(x - h, y + h))*beta*beta*(surf(x + h/2, y) - surf(x - h/2, y))/(4*h*h*h)
+    return -0.5 * beta * beta * ((surf(x + h, y) - 2 * surf(x, y) + surf(x - h, y)) / (h * h)) * (
+                (surf(x, y + h / 2) - surf(x, y - h / 2)) / h) \
+           + (alpha - 1) * (surf(x - h, y - h) + surf(x + h, y + h) - surf(x + h, y - h) - surf(x - h,
+                                                                                                y + h)) * beta * beta * (
+                       surf(x + h / 2, y) - surf(x - h / 2, y)) / (4 * h * h * h)
 
 
 def y_diff(surf, x, y, h, beta):
-    return -beta*(surf(x + h/2, y) - surf(x - h/2, y))/h
+    return -beta * (surf(x + h / 2, y) - surf(x - h / 2, y)) / h
 
 
 def y_diff_deriv(x, y):
-    return -0.5*y
+    return -0.5 * y
 
 
 def surface(x, y):
